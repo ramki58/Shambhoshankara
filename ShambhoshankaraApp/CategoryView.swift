@@ -51,9 +51,13 @@ struct CategoryView: View {
                         
                         // Category content
                         if category == "Sri Rudram" {
-                            // Hierarchical view for Sri Rudram
+                            // Level-based view for Sri Rudram
+                            SriRudramView()
+                                .environmentObject(audioManager)
+                        } else if category == "Mahanyasam" {
+                            // Hierarchical view for Mahanyasam
                             LazyVStack(spacing: 16) {
-                                ForEach(getSriRudramSections(), id: \.title) { section in
+                                ForEach(getMahanyasamSections(), id: \.title) { section in
                                     RudramSectionView(section: section)
                                         .environmentObject(audioManager)
                                 }
@@ -122,32 +126,24 @@ struct CategoryView: View {
     }
     
     private func getCategoryTracks() -> [AudioTrack] {
-        // For now, return current tracks - you can organize by category later
         switch category {
         case "Slokams":
-            return Array(audioManager.playlist[1...12]) // Ganapathi, Saraswathi, Gurubrahma
+            return AudioDataManager.shared.getSlokamTracks()
         case "Sandhya Vandhanam":
-            return [audioManager.playlist[13]] // Puja Sankalpam for now
+            return AudioDataManager.shared.getSandhyaVandhanamTracks()
+        case "Pancha Sookthams":
+            return AudioDataManager.shared.getPanchaSookthams()
         case "Homam":
-            return Array(audioManager.playlist[14...15]) // Ganapathi Puja
+            return AudioDataManager.shared.getHomamTracks()
         default:
-            return [audioManager.playlist[0]] // Introduction for other categories
+            return []
         }
     }
     
-    private func getSriRudramSections() -> [RudramSection] {
-        // Sample structure - you can replace with your 44 titles
-        return [
-            RudramSection(title: "Namakam - Part 1", tracks: [
-                AudioTrack(id: UUID(), title: "Namakam Verse 1", artist: "Sri Rudram", duration: 0, fileName: "rudram1-1"),
-                AudioTrack(id: UUID(), title: "Namakam Verse 2", artist: "Sri Rudram", duration: 0, fileName: "rudram1-2")
-            ]),
-            RudramSection(title: "Namakam - Part 2", tracks: [
-                AudioTrack(id: UUID(), title: "Namakam Verse 3", artist: "Sri Rudram", duration: 0, fileName: "rudram2-1"),
-                AudioTrack(id: UUID(), title: "Namakam Verse 4", artist: "Sri Rudram", duration: 0, fileName: "rudram2-2")
-            ])
-            // Add all 44 sections here
-        ]
+
+    
+    private func getMahanyasamSections() -> [RudramSection] {
+        return AudioDataManager.shared.getMahanyasamSections()
     }
 }
 
@@ -205,6 +201,19 @@ struct CurrentTrackCard: View {
                         .font(.system(size: 30))
                         .foregroundColor(.white.opacity(0.8))
                 }
+            }
+            
+            // Time display
+            HStack {
+                Text(audioManager.formatTime(audioManager.currentTime))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Spacer()
+                
+                Text(audioManager.formatTime(audioManager.duration))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
             }
             
             // Mini progress bar
